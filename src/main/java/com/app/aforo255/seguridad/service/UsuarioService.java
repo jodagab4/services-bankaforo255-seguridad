@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.User;
 import com.app.aforo255.seguridad.dao.UsuarioDao;
 import com.app.aforo255.seguridad.models.entity.Usuario;
 
+import brave.Tracer;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,8 @@ public class UsuarioService implements UserDetailsService {
 	private Logger log =LoggerFactory.getLogger(UsuarioService.class);
 	@Autowired
 	private UsuarioDao client ;
+	@Autowired
+	private Tracer tracer ;
 	
 	
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -31,6 +35,7 @@ public class UsuarioService implements UserDetailsService {
 		Usuario usuario = client.findByUsername(username);
 		
 		if (usuario==null) {
+			tracer.currentSpan().tag("error.message", "Error login");
 			throw new UsernameNotFoundException("Error login");
 			
 		}
